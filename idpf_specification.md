@@ -6458,18 +6458,19 @@ a standard capability to a PF or a VF device
 
 ## OEM Capabilities (WIP)
 
-This spec allows the OEMs to add new capabilities and export them to the IDPF compatible driver.
+  The IDPF spec defines the `VIRTCHNL2_OP_GET_OEM_CAPS` OP code to exchange OEM specific capabilities between an IDPF compatible driver, and the CP software. The specific implementation and requirements of this message are based on the `VIRTCHNL2_DEVICE_TYPE`, `oem_cp_major_version`, and `oem_cp_minor_version` fields in the `virtchnl2_get_capabilities` struct.
 
 - Device Interface
   
-  The driver learns and negotiates the OEM specific capabilities from the device. Based on the current device and the node policy, certain capabilities will be made available to the driver.
+  The driver learns and negotiates the OEM specific capabilities from the CP software. Based on the current device and the node policy, certain capabilities will be made available to the driver.
 
 - Capability and Data structures
 
   The response from <span class="mark">VIRTCHNL2_OP_GET_CAPS will have the</span> VIRTCHNL2_DEVICE_TYPE, oem_cp_major_version, and oem_cp_minor_version to indicate what device and the CP SW the driver is talking to.
   
-  Driver will use the VIRTCHNL2_OP_GET_OEM_CAPS message to learn about the special capabilities that are available.
+  Driver will use the VIRTCHNL2_OP_GET_OEM_CAPS message to learn about the OEM specific capabilities that are available.
 
+  The following is an example format of the message buffer. The OEM is free to override this structure to best fit their needs.
   ```C
   struct virtchnl2_oem_caps {
     /* See VIRTCHNL2_OEM_CAPS definitions */
@@ -6480,21 +6481,10 @@ This spec allows the OEMs to add new capabilities and export them to the IDPF co
   #define VIRTCHNL2_CAP_OEM_P2P BIT(0) /* port-to-port */
   ```
 
-- Configuration
-
-- Driver Configuration and Runtime flow Examples of OEM Capability:
-  1.  Port-to-port configuration
-  **port-to-port:** Upon learning the port-to-port availability and the device type, the driver may request HMA to add device specific sequence that may request additional queue groups that are necessary for the device to setup the port-to-port functionality.
-  2.  Live MIgration, device state retrieval (WIP)
-
-- Device and Control Plane Behavioral Model
-
 - Examples of OEM Capability:
-  1.  port-to-port:
-  
-    The VIRTCHNL2_OP_ADD_QUEUE_GROUPS processing on the CP will automatically reserve enough RSS LUT instances for the incoming packets to be spread across the port-to-port queues. When the port-to-port offload is no longer needed, the driver may free up the associated NIC resources using the VIRTCHNL2_OP_DEL_QUEUE_GROUPS command.
-  
-  2.  Live MIgration, device state state retrieval (WIP)
+
+  1.**port-to-port:** Upon learning the port-to-port availability and the device type, the driver may request the CP SW to add device specific sequence that may request additional queue groups that are necessary for the device to setup the port-to-port functionality.
+
 
 ## Application Targeted Routing (ATR)
 
